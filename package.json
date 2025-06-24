@@ -1,6 +1,7 @@
 {
-  "name": "line-bot-webhook",
+  "name": "line-bot-webhook1",
   "version": "1.0.0",
+  "description": "LINE bot webhook on Render",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
