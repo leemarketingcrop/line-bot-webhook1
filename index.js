@@ -9,11 +9,20 @@ const config = {
 const client = new line.Client(config);
 const app = express();
 
+// Webhook 路由
 app.post('/webhook', line.middleware(config), (req, res) => {
   Promise.all(req.body.events.map(handleEvent))
-    .then((result) => res.json(result));
+    .then(result => res.json(result))
+    .catch(err => {
+      console.error('Webhook 處理錯誤：', err);
+      res.status(500).end();
+    });
 });
 
+// 首頁測試用路由
+app.get('/', (req, res) => res.send('LINE Bot is running'));
+
+// 處理訊息事件
 function handleEvent(event) {
   if (event.source.type === 'group') {
     return Promise.resolve(null); // 群組不回應
@@ -29,10 +38,7 @@ function handleEvent(event) {
   return Promise.resolve(null);
 }
 
-// ✅ 顯示首頁文字（讓你打開網址時看到畫面）
-app.get('/', (req, res) => res.send('LINE Bot is running'));
-
-// ✅ 開啟伺服器（Render 需要這行）
+// 啟動伺服器（Render 用）
 app.listen(process.env.PORT || 3000, () => {
   console.log('✅ LINE Bot is running on port', process.env.PORT || 3000);
 });
