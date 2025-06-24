@@ -9,25 +9,25 @@ const config = {
 const client = new line.Client(config);
 const app = express();
 
-// webhook 接收路由
+// webhook endpoint
 app.post('/webhook', line.middleware(config), (req, res) => {
   Promise.all(req.body.events.map(handleEvent))
     .then((result) => res.json(result))
     .catch((err) => {
-      console.error('Webhook 處理錯誤：', err);
-      res.status(500).end();
+      console.error('❌ Error handling event:', err);
+      res.status(500).end(); // 告知 LINE 發生錯誤
     });
 });
 
-// 首頁測試
-app.get('/', (req, res) => res.send('LINE Bot is running'));
-
-// 處理訊息邏輯
+// event handler function
 function handleEvent(event) {
+  // 忽略群組訊息
   if (event.source.type === 'group') {
-    return Promise.resolve(null); // 群組不回應
+    console.log('📢 Ignored group message');
+    return Promise.resolve(null);
   }
 
+  // 回覆文字訊息
   if (event.type === 'message' && event.message.type === 'text') {
     return client.replyMessage(event.replyToken, {
       type: 'text',
@@ -35,10 +35,15 @@ function handleEvent(event) {
     });
   }
 
+  // 其他類型不處理
   return Promise.resolve(null);
 }
 
-// 伺服器監聽
-app.listen(process.env.PORT || 3000, () => {
-  console.log('✅ LINE Bot is running on port', process.env.PORT || 3000);
+// 測試首頁
+app.get('/', (req, res) => res.send('✅ LINE Bot is running'));
+
+// 啟動伺服器
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`✅ LINE Bot is running on port ${port}`);
 });
