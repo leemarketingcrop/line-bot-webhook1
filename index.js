@@ -29,6 +29,10 @@ function handleEvent(event) {
   return Promise.resolve(null);
 }
 
+// ✅ 顯示首頁文字（讓你打開網址時看到畫面）
+app.get('/', (req, res) => res.send('LINE Bot is running'));
+
+// ✅ 開啟伺服器（Render 需要這行）
 app.listen(process.env.PORT || 3000, () => {
   console.log('✅ LINE Bot is running on port', process.env.PORT || 3000);
 });
