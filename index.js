@@ -9,10 +9,7 @@ const config = {
 const client = new line.Client(config);
 const app = express();
 
-// 解析 JSON 格式的請求主體
-app.use(express.json());
-
-// Webhook 路由處理
+// ❶ LINE 的 middleware 要放在最前面處理 raw body，不能在 express.json() 之後
 app.post('/webhook', line.middleware(config), async (req, res) => {
   try {
     const events = req.body.events;
@@ -28,16 +25,14 @@ app.post('/webhook', line.middleware(config), async (req, res) => {
   }
 });
 
-// 處理每個事件
+// 處理訊息邏輯
 async function handleEvent(event) {
   try {
-    // 忽略群組訊息
     if (event.source.type === 'group') {
       console.log('⛔ 忽略群組訊息');
       return null;
     }
 
-    // 回應文字訊息
     if (event.type === 'message' && event.message.type === 'text') {
       const replyText = `你說的是：${event.message.text}`;
       await client.replyMessage(event.replyToken, {
@@ -54,12 +49,11 @@ async function handleEvent(event) {
   }
 }
 
-// Render 健康檢查頁面
+// 健康檢查用
 app.get('/', (req, res) => {
   res.send('✅ LINE Bot is live and healthy');
 });
 
-// 啟動伺服器
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`🚀 LINE Bot 已啟動於埠號 ${port}`);
